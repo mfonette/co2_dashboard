@@ -1,59 +1,94 @@
-# Co2Emissions
+# 🌍 CO₂ Emissions Dashboard
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.4.
+This is a web-based dashboard built with **Angular**, **Chart.js**, and **Angular Material** to visualize per capita CO₂ emissions across countries and regions from the year **1900 onwards**. The dashboard provides three main views:
+- **Time Series**
+- **Regional Comparison**
+- **Top & Bottom Emitters**
 
-## Development server
+---
 
-To start a local development server, run:
+## 🛠 Installation & Setup
 
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/co2-dashboard.git
+cd co2-dashboard
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Run the App
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open in your browser: [http://localhost:4200](http://localhost:4200)
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🗂 Project Structure
 
-```bash
-ng generate component component-name
+```
+src/
+├── app/
+│   ├── core/
+│   │   ├── services/              # Core logic for loading, filtering, and managing data
+│   │   │   └── data.service.ts
+│   │   ├── models/                # Data models used throughout the app
+│   │   │   └── co2-entity.model.ts
+│
+│   ├── features/                  # Feature-based component structure
+│   │   ├── time-series/           # Line chart comparing CO₂ emissions over time
+│   │   ├── regional-comparison/   # Bar chart comparing selected countries and regions
+│   │   └── top-bottom-emitters/   # Horizontal diverging bar chart for top/bottom emitters
+│
+│   ├── layout/                    # UI layout components (header/sidebar)
+│   │   ├── header/
+│   │   └── sidebar/
+│
+│   ├── app-routing.module.ts      # Lazy-loaded routes
+│   ├── app.component.ts
+│   └── app.module.ts
+│
+├── assets/
+│   └── data/co2_emissions.csv     # Main dataset
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
 
-```bash
-ng generate --help
-```
+## 🧠 Key Design & Architectural Decisions
 
-## Building
+### 1. **Modular Design**
+The app is divided into three feature modules, each lazily loaded for performance.
 
-To build the project run:
+### 2. **Responsive UI**
+The layout and dropdowns adapt to different screen sizes using Bootstrap and Angular Material.
 
-```bash
-ng build
-```
+### 3. **Reactive Data Flow**
+`DataService` uses `BehaviorSubject` and RxJS `combineLatest` to manage data streams and ensure synchronized updates.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## ✅ Assumptions Made
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+1. **Data Filtering from 1900**  
+   The dataset was filtered to exclude years prior to 1900 to reduce visual clutter and improve performance.
 
-```bash
-ng test
-```
+2. **Single Entity List for Time Series**  
+   All entities (countries + regions) are available in the dropdown for comparison instead of separating them.
 
-## Running end-to-end tests
+3. **Mixed Country & Region Comparison**  
+   Regional Comparison allows selecting both countries and regions at once for flexibility.
 
-For end-to-end (e2e) testing, run:
+4. **Top N Emitters = 10**  
+   "Top emitters" was interpreted as the top 10 highest and bottom 10 lowest emitters for the selected year.
 
-```bash
-ng e2e
-```
+5. **Maximum Selections**  
+   - Time Series: A maximum of 5 entities can be selected at a time.  
+   - Regional Comparison: A total of 30 entities (countries + regions combined) can be selected.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+6. **Chart Responsiveness**  
+   Bar sizes are adjusted based on the number of selected entities to maintain visual balance.
