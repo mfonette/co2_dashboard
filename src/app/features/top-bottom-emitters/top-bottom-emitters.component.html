@@ -1,0 +1,16 @@
+<div class="row align-items-end mb-4 g-3">
+  <div class="col-md-3">
+    <mat-form-field appearance="outline" class="w-100 mat-field-sm">
+      <mat-label>Select Year</mat-label>
+      <mat-select [(ngModel)]="selectedYear" (selectionChange)="updateChart()">
+        <mat-option *ngFor="let year of yearList" [value]="year">
+          {{ year }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>
+
+<div class="card shadow-sm p-4">
+  <canvas #emittersCanvas height="400"></canvas>
+</div>

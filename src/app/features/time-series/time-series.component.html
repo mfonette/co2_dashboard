@@ -1,0 +1,37 @@
+<div class="row align-items-end mb-4 g-3">
+  <div class="col-md-6">
+    <div class="d-flex align-items-center" style="gap: 2px;">
+      <!-- Force dropdown to take full width inside flexbox -->
+        <mat-form-field appearance="outline" class=" mat-field-sm m-0">
+          <mat-label>Select Entities</mat-label>
+          <mat-select
+            [(ngModel)]="selectedEntities"
+            [matTooltip]="selectedEntities.length >= 5 ? 'You can only select 5 entities' : ''"
+            matTooltipPosition="above"
+            multiple
+            (selectionChange)="onEntitySelectionChange($event)"
+          >
+            <mat-option 
+              *ngFor="let entity of entities" 
+              [value]="entity" 
+              [disabled]="selectedEntities.length >= 5 && !selectedEntities.includes(entity)">
+              {{ entity }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+
+      <!-- Info Icon -->
+      <i class="material-icons text-muted"
+         matTooltip="You can only select a maximum of 5 entities for comparison"
+         matTooltipPosition="above"
+         style="cursor: pointer; font-size: 20px;">
+        info
+      </i>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm p-4">
+  <canvas #lineCanvas height="300"></canvas>
+</div>

@@ -1,0 +1,29 @@
+<aside class="sidebar" [class.collapsed]="!isExpanded">
+
+  <div class="sidebar-logo text-center py-3">
+    <img src="https://www.causeway.com/hubfs/LOGO_Colour_Purple.svg" alt="Causeway logo" loading="eager">
+  </div>
+
+    <!-- Menu Header -->
+    <div class="menu-header text-uppercase fw-bold px-4 mb-2">
+      Menu
+    </div>
+
+    <nav class="nav-menu">
+      <ul class="nav-list">
+        <li *ngFor="let item of menuItems" class="nav-item">
+          <a
+          [routerLink]="item.link"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link"
+          [title]="item.label"
+        >
+          <i class="material-icons">{{ item.icon }}</i>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+        
+        </li>
+      </ul>
+    </nav>
+  </aside>

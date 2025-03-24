@@ -1,0 +1,30 @@
+.app-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  padding-top: var(--header-height);
+  transition: margin-left 0.3s ease;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width)); 
+}
+
+.sidebar-collapsed .main-content {
+  margin-left: var(--sidebar-collapsed-width);
+  width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 5%;
+  padding: 2rem;
+  flex-grow: 1;
+}
+  
