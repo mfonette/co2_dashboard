@@ -11,7 +11,7 @@ This is a web-based dashboard built with **Angular**, **Chart.js**, and **Angula
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/co2-dashboard.git
+git clone https://github.com/mfonette/co2-dashboard.git
 cd co2-dashboard
 ```
 
