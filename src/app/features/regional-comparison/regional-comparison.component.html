@@ -1,52 +1,40 @@
 <div class="row align-items-end mb-4 g-3">
   <!-- Year -->
   <div class="col-md-3">
-    <mat-form-field appearance="outline" class="mat-field-sm">
-      <mat-label>Year</mat-label>
-      <mat-select [(value)]="selectedYear" (selectionChange)="updateChart()">
-        <mat-option *ngFor="let year of yearList" [value]="year">{{
-          year
-        }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <ngx-select-dropdown 
+      [config]="yearDropdownConfig"
+      [options]="years"
+      [(ngModel)]="selectedYear"
+      (change)="onSelectionChange()"
+    ></ngx-select-dropdown>
   </div>
 
   <!-- Country Selector -->
   <div class="col-md-3">
-    <mat-form-field appearance="outline" class="mat-field-sm">
-      <mat-label>Select Countries</mat-label>
-      <mat-select
-        [(value)]="selectedCountries"
-        multiple
-        (selectionChange)="onCountrySelectionChange($event)"
-      >
-        <mat-option *ngFor="let country of countryList" [value]="country">
-          {{ country }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+    <ngx-select-dropdown 
+      [config]="dropdownConfig"
+      [options]="countries"
+      [(ngModel)]="selectedCountries"
+      (change)="onSelectionChange()"
+      [multiple]="true"
+    ></ngx-select-dropdown>
   </div>
 
   <!-- Region Selector -->
   <div class="col-md-3">
-    <mat-form-field appearance="outline" class="mat-field-sm">
-      <mat-label>Regions</mat-label>
-      <mat-select
-        [(value)]="selectedRegions"
-        multiple
-        (selectionChange)="onRegionSelectionChange($event)"
-      >
-        <mat-option *ngFor="let region of regionList" [value]="region">
-          {{ region }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+    <ngx-select-dropdown 
+      [config]="regionDropdownConfig"
+      [options]="regions"
+      [(ngModel)]="selectedRegions"
+      (change)="onSelectionChange()"
+      [multiple]="true"
+    ></ngx-select-dropdown>
   </div>
 </div>
 
 <!-- Limit Reached Message -->
 <div *ngIf="selectedEntities.length >= 30" class="text-danger small mb-3">
-  ⚠️ You’ve selected the maximum of 30 entities.
+  ⚠️ You've selected the maximum of 30 entities.
 </div>
 
 <!-- Chart -->

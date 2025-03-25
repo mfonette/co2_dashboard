@@ -1,53 +1,92 @@
-import {
-  Component,
-  OnInit,
-  ElementRef,
-  ViewChild,
-  AfterViewInit
-} from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Chart, ChartType, BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title } from 'chart.js';
+import { SelectDropDownModule } from 'ngx-select-dropdown';
+import {
+  Chart,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
 import { Co2Entity } from '../../core/models/co2-entity-model';
 import { DataService } from '../../core/services/data.service';
 import { combineLatest } from 'rxjs';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatOptionModule } from '@angular/material/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
-
-Chart.register(BarElement,  BarController, CategoryScale, LinearScale, Tooltip, Legend, Title);
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 @Component({
   selector: 'app-regional-comparison',
   standalone: true,
-  imports: [CommonModule, FormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatCheckboxModule,
-    MatTooltipModule
+  imports: [
+    CommonModule,
+    FormsModule,
+    SelectDropDownModule
   ],
   templateUrl: './regional-comparison.component.html',
-  styleUrl: './regional-comparison.component.scss'
+  styleUrls: ['./regional-comparison.component.scss']
 })
 export class RegionalComparisonComponent implements OnInit, AfterViewInit {
+  // Data
   @ViewChild('barCanvas') barCanvas!: ElementRef<HTMLCanvasElement>;
   chart!: Chart;
 
   allData: Co2Entity[] = [];
   yearList: number[] = [];
-  selectedYear: number = 2020;
-
   countryList: string[] = [];
   regionList: string[] = [];
-
-  searchText: string = '';
-  selectedCountries: string[] = [];
-  selectedRegions: string[] = [];
   maxTotalSelection = 30;
+
+  // Dropdown data
+  countries: any[] = [];
+  selectedCountries: any[] = [];
+  regions: any[] = [];
+  selectedRegions: any[] = [];
+  years: any[] = [];
+  selectedYear: any = null;
+
+  // Configuration for dropdowns
+  dropdownConfig = {
+    displayKey: 'name',
+    search: true,
+    height: '300px',
+    placeholder: 'Select Countries',
+    searchPlaceholder: 'Search Countries',
+    limitTo: 0,
+    moreText: 'more',
+    noResultsFound: 'No results found!',
+    searchOnKey: 'name',
+    clearOnSelection: false,
+    inputDirection: 'ltr',
+    enableSelectAll: false,
+    multiple: true
+  };
+
+  yearDropdownConfig = {
+    displayKey: 'name',
+    search: true,
+    height: '300px',
+    placeholder: 'Select Year',
+    searchPlaceholder: 'Search Year',
+    limitTo: 0,
+    moreText: 'more',
+    noResultsFound: 'No results found!',
+    searchOnKey: 'name',
+    clearOnSelection: false,
+    inputDirection: 'ltr',
+    enableSelectAll: false,
+    multiple: false,
+    allowRemoveSelection: false
+  };
+
+  regionDropdownConfig = {
+    ...this.dropdownConfig,
+    placeholder: 'Select Regions',
+    searchPlaceholder: 'Search Regions'
+  };
 
   constructor(private dataService: DataService) {}
 
@@ -57,34 +96,55 @@ export class RegionalComparisonComponent implements OnInit, AfterViewInit {
       this.dataService.loadCSV$()
     ]).subscribe(([countrySet, data]) => {
       this.allData = data;
-      this.yearList = [...new Set(data.map(d => d.Year))].sort((a, b) => a - b);
-
+      this.yearList = [...new Set(data.map(d => d.Year))].sort((a, b) => b - a);
+      
+      // Set default year immediately
+      const defaultYear = {
+        id: 2020,
+        name: '2020'
+      };
+      this.selectedYear = defaultYear;
+      
       const allEntities = [...new Set(data.map(d => d.Entity.trim()))];
       this.countryList = allEntities.filter(e => countrySet.has(e)).sort();
       this.regionList = allEntities.filter(e => !countrySet.has(e)).sort();
 
-      if (this.chart) this.updateChart();
+      // Update dropdown data
+      this.countries = this.countryList.map(country => ({ 
+        id: country,
+        name: country 
+      }));
+      
+      this.regions = this.regionList.map(region => ({
+        id: region,
+        name: region
+      }));
+
+      this.years = this.yearList.map(year => ({
+        id: year,
+        name: year.toString()
+      }));
+
+      this.updateChart();
     });
   }
-
-
 
   ngAfterViewInit(): void {
     this.initChart();
   }
 
   get selectedEntities(): string[] {
-    return [...this.selectedCountries, ...this.selectedRegions].slice(0, 30);
+    return [
+      ...(this.selectedCountries || []).map(c => c.name),
+      ...(this.selectedRegions || []).map(r => r.name)
+    ];
   }
 
   initChart(): void {
     const canvas = this.barCanvas?.nativeElement;
-    if (!canvas) {
-      console.warn('Canvas element not ready');
-      return;
-    }
-  
-    const ctx = this.barCanvas.nativeElement.getContext('2d');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     this.chart = new Chart(ctx, {
@@ -93,69 +153,59 @@ export class RegionalComparisonComponent implements OnInit, AfterViewInit {
       options: {
         responsive: true,
         plugins: {
-          legend: { display: false },
-          title: { display: true, text: 'Regional CO₂ Emissions Per Capita' }
+          legend: {
+            display: false
+          },
+          title: {
+            display: true,
+            text: 'Regional CO₂ Emissions Comparison'
+          }
         },
         scales: {
           y: {
             beginAtZero: true,
-            title: { display: true, text: 'Emissions (t/person)' }
-          },
-          x: {
-            title: { display: true, text: 'Entity' },
-            ticks: { autoSkip: false }
+            title: {
+              display: true,
+              text: 'CO₂ emissions per capita (t/person)'
+            }
           }
         }
       }
     });
   }
 
-  onCountrySelectionChange(event: any) {
-    const total = event.value.length + this.selectedRegions.length;
-    if (total <= this.maxTotalSelection) {
-      this.selectedCountries = event.value;
-      this.updateChart();
-    } else {
-      // Revert to previous value
-      event.source.writeValue(this.selectedCountries);
-    }
+  // Generic handler for all selection changes
+  onSelectionChange(): void {
+    this.updateChart();
   }
 
-  onRegionSelectionChange(event: any) {
-    const total = this.selectedCountries.length + event.value.length;
-    if (total <= this.maxTotalSelection) {
-      this.selectedRegions = event.value;
-      this.updateChart();
-    } else {
-      // Revert to previous value
-      event.source.writeValue(this.selectedRegions);
-    }
+  getSelectedYear(): number {
+    return this.selectedYear?.id || 2020;
   }
 
   updateChart(): void {
     if (!this.chart) return;
-    console.log('Updating chart for year:', this.selectedYear);
     this.chart.data = this.getChartData();
     this.chart.update();
   }
   
   getChartData() {
-    const filtered = this.allData.filter(d => d.Year === this.selectedYear);
-
+    const filtered = this.allData.filter(d => d.Year === this.getSelectedYear());
     const relevantEntities = this.selectedEntities;
     const selectedData = filtered.filter(d => relevantEntities.includes(d.Entity));
-    const topEntities = selectedData.sort((a, b) => b.emissionsPerCapita - a.emissionsPerCapita).slice(0, 30);
+    const topEntities = selectedData
+      .sort((a, b) => b.emissionsPerCapita - a.emissionsPerCapita)
+      .slice(0, 30);
     
-  const barCount = topEntities.length;
-    const isFewBars = barCount <= 10;
+    const barCount = topEntities.length;
     return {
       labels: topEntities.map(e => e.Entity),
       datasets: [
         {
-          label: `CO₂ emissions in ${this.selectedYear}`,
+          label: `CO₂ emissions in ${this.getSelectedYear()}`,
           data: topEntities.map(e => e.emissionsPerCapita),
           backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          barThickness: isFewBars ? 60 : ('flex' as const)
+          barThickness: barCount <= 10 ? 60 : ('flex' as const)
         }
       ]
     };

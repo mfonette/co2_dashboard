@@ -9,12 +9,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Co2Entity } from '../../core/models/co2-entity-model';
 import { DataService } from '../../core/services/data.service';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatOptionModule } from '@angular/material/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTooltipModule } from '@angular/material/tooltip';
-
+import { SelectDropDownModule } from 'ngx-select-dropdown';
 
 import {
   Chart,
@@ -40,36 +35,65 @@ Chart.register(
   Legend
 );
 
-
 @Component({
   selector: 'app-time-series',
   standalone: true,
-  imports: [CommonModule, FormsModule,  MatFormFieldModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatCheckboxModule,
-    MatTooltipModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    SelectDropDownModule
+  ],
   templateUrl: './time-series.component.html',
-  styleUrl: './time-series.component.scss'
+  styleUrls: ['./time-series.component.scss']
 })
 export class TimeSeriesComponent implements OnInit, AfterViewInit {
   @ViewChild('lineCanvas', { static: false }) lineCanvas!: ElementRef<HTMLCanvasElement>;
   chart!: Chart;
 
   allData: Co2Entity[] = [];
-  entities: string[] = [];
-  selectedEntities: string[] = ['World'];
+  entityList: string[] = [];
+  entities: any[] = [];
+  selectedEntities: any[] = [];
+  
+  // Configuration for entity dropdown
+  dropdownConfig = {
+    displayKey: 'name',
+    search: true,
+    height: '300px',
+    placeholder: 'Select Entities (max 5)',
+    searchPlaceholder: 'Search Entities',
+    limitTo: 0,
+    moreText: 'more',
+    noResultsFound: 'No entities found!',
+    searchOnKey: 'name',
+    clearOnSelection: false,
+    inputDirection: 'ltr',
+    enableSelectAll: false,
+    multiple: true
+  };
 
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
     this.dataService.loadCSV$().subscribe(data => {
       this.allData = data;
-      this.entities = [...new Set(data.map(d => d.Entity))].sort();
+      this.entityList = [...new Set(data.map(d => d.Entity))].sort();
+      
+      // Create entities array with proper object structure
+      this.entities = this.entityList.map(entity => ({
+        id: entity,
+        name: entity
+      }));
+
+      // Set default selection to World
+      const worldEntity = this.entities.find(e => e.name === 'World');
+      if (worldEntity) {
+        this.selectedEntities = [worldEntity];
+      }
+
       if (this.chart) this.updateChart();
     });
   }
-  
 
   ngAfterViewInit(): void {
     this.initChart();
@@ -102,12 +126,11 @@ export class TimeSeriesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onEntitySelectionChange(event: any): void {
+  onEntitySelect(event: any): void {
+    // Limit selection to 5 entities
     if (this.selectedEntities.length > 5) {
-      // Remove the last selected item to cap the max at 5
-      this.selectedEntities.pop();
+      this.selectedEntities = this.selectedEntities.slice(0, 5);
     }
-  
     this.updateChart();
   }
 
@@ -120,33 +143,32 @@ export class TimeSeriesComponent implements OnInit, AfterViewInit {
   }
 
   getChartData(): ChartConfiguration<'line'>['data'] {
-    const years = [...new Set(this.allData.map(d => d.Year))].sort((a, b) => a - b);
+    const selected = this.getSelectedEntityNames();
+    const years = [...new Set(this.allData.map(d => d.Year))].sort();
     
-    // Ensure it's always treated as an array
-    const selected = Array.isArray(this.selectedEntities)
-      ? this.selectedEntities
-      : [this.selectedEntities];
-  
     return {
       labels: years,
-      datasets: selected.map(entity => {
+      datasets: selected.map(entityName => {
         const data = years.map(year => {
-          const match = this.allData.find(d => d.Entity === entity && d.Year === year);
+          const match = this.allData.find(d => d.Entity === entityName && d.Year === year);
           return match ? match.emissionsPerCapita : null;
         });
   
         return {
-          label: entity,
+          label: entityName,
           data,
           fill: false,
-          borderColor: this.getColor(entity),
+          borderColor: this.getColor(entityName),
           tension: 0.3,
           spanGaps: true
         };
       })
     };
   }
-  
+
+  getSelectedEntityNames(): string[] {
+    return this.selectedEntities.map(e => e.name);
+  }
 
   getColor(name: string): string {
     const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);

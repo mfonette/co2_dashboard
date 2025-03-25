@@ -1,6 +1,6 @@
 # 🌍 CO₂ Emissions Dashboard
 
-This is a web-based dashboard built with **Angular**, **Chart.js**, and **Angular Material** to visualize per capita CO₂ emissions across countries and regions from the year **1900 onwards**. The dashboard provides three main views:
+This is a web-based dashboard built with **Angular**, **Chart.js**, and **Bootstrap** to visualize per capita CO₂ emissions across countries and regions from the year **1900 onwards**. The dashboard provides three main views:
 - **Time Series**
 - **Regional Comparison**
 - **Top & Bottom Emitters**

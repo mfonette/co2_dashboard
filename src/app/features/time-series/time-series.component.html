@@ -1,33 +1,21 @@
 <div class="row align-items-end mb-4 g-3">
-  <div class="col-md-6">
-    <div class="d-flex align-items-center" style="gap: 2px;">
-      <!-- Force dropdown to take full width inside flexbox -->
-        <mat-form-field appearance="outline" class=" mat-field-sm m-0">
-          <mat-label>Select Entities</mat-label>
-          <mat-select
-            [(ngModel)]="selectedEntities"
-            [matTooltip]="selectedEntities.length >= 5 ? 'You can only select 5 entities' : ''"
-            matTooltipPosition="above"
-            multiple
-            (selectionChange)="onEntitySelectionChange($event)"
-          >
-            <mat-option 
-              *ngFor="let entity of entities" 
-              [value]="entity" 
-              [disabled]="selectedEntities.length >= 5 && !selectedEntities.includes(entity)">
-              {{ entity }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+  <div class="col-md-4">
+    <div class="d-flex align-items-center" style="gap: 8px;">
+      <!-- Entity Selector -->
+      <div class="flex-grow-1">
+        <ngx-select-dropdown 
+          [config]="dropdownConfig"
+          [options]="entities"
+          [(ngModel)]="selectedEntities"
+          (change)="onEntitySelect($event)"
+          [multiple]="true"
+        ></ngx-select-dropdown>
+      </div>
+    </div>
 
-
-      <!-- Info Icon -->
-      <i class="material-icons text-muted"
-         matTooltip="You can only select a maximum of 5 entities for comparison"
-         matTooltipPosition="above"
-         style="cursor: pointer; font-size: 20px;">
-        info
-      </i>
+    <!-- Selection Limit Warning -->
+    <div *ngIf="selectedEntities.length >= 5" class="text-danger small mt-1">
+      ⚠️ Maximum selection limit (5) reached
     </div>
   </div>
 </div>

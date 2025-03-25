@@ -11,7 +11,7 @@ export class DataService {
   private dataSubject = new BehaviorSubject<Co2Entity[]>([]);
   public data$ = this.dataSubject.asObservable();
   countries = new Set<string>();
-regions = new Set<string>();
+  regions = new Set<string>();
 
   constructor(private http: HttpClient) {}
 
