@@ -58,38 +58,4 @@ regions = new Set<string>();
       })
     );
   }
-  
-
-  // loadCSV(): void {
-  //   this.http.get('assets/data/co2_emissions.csv', { responseType: 'text' })
-  //     .subscribe(csvText => {
-  //       Papa.parse(csvText, {
-  //         header: true,
-  //         skipEmptyLines: true,
-  //         complete: (result) => {
-  //           const cleanedData: Co2Entity[] = (result.data as any[]).map(row => ({
-  //             Entity: row["Entity"],
-  //             Year: +row["Year"],
-  //             emissionsPerCapita: +row["Annual CO₂ emissions (per capita)"]
-  //           })).filter(entry => entry.Year >= 1900);
-  //           this.dataSubject.next(cleanedData);
-  //         }
-  //       });
-  //     });
-  // }
-
-  // fetchCountries(): void {
-  //   this.http.get<any[]>('https://restcountries.com/v3.1/all').subscribe(response => {
-  //     const countryNames = response.map(c => c.name.common.trim());
-  //     this.countries = new Set(countryNames);
-  
-  //     // Separate entities into countries and regions
-  //     const allEntities = [...new Set(this.dataSubject.value.map(d => d.Entity.trim()))];
-  //     allEntities.forEach(entity => {
-  //       if (!this.countries.has(entity)) {
-  //         this.regions.add(entity);
-  //       }
-  //     });
-  //   });
-  // }
 }
