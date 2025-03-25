@@ -23,6 +23,7 @@ import {
   Legend,
   ChartConfiguration
 } from 'chart.js';
+import { DropdownConfigService } from '../../core/services/dropdown-config.service';
 
 Chart.register(
   LineController,
@@ -56,30 +57,22 @@ export class TimeSeriesComponent implements OnInit, AfterViewInit {
   selectedEntities: any[] = [];
   
   // Configuration for entity dropdown
-  dropdownConfig = {
-    displayKey: 'name',
-    search: true,
-    height: '300px',
-    placeholder: 'Select Entities (max 5)',
-    searchPlaceholder: 'Search Entities',
-    limitTo: 0,
-    moreText: 'more',
-    noResultsFound: 'No entities found!',
-    searchOnKey: 'name',
-    clearOnSelection: false,
-    inputDirection: 'ltr',
-    enableSelectAll: false,
-    multiple: true
-  };
+  dropdownConfig;
 
-  constructor(private dataService: DataService) {}
+  constructor(private dataService: DataService,
+    private dropdownService: DropdownConfigService
+  ){
+    this.dropdownConfig = this.dropdownService.getMultiSelectConfig('Select Entities (max 5)', 'Search Entities');
+  }
+
 
   ngOnInit(): void {
     this.dataService.loadCSV$().subscribe(data => {
       this.allData = data;
+      // Maps each item in data to its Entity name and Removes duplicates
       this.entityList = [...new Set(data.map(d => d.Entity))].sort();
       
-      // Create entities array with proper object structure
+      // Create entities array with proper object structure because ngx-s elect-dropdown expects an array of { id, name } objects, not raw strings.
       this.entities = this.entityList.map(entity => ({
         id: entity,
         name: entity

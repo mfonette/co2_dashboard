@@ -20,6 +20,7 @@ import {
 import { Co2Entity } from '../../core/models/co2-entity-model';
 import { DataService } from '../../core/services/data.service';
 import { SelectDropDownModule } from 'ngx-select-dropdown';
+import { DropdownConfigService } from '../../core/services/dropdown-config.service';
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
@@ -41,27 +42,15 @@ export class TopBottomEmittersComponent implements OnInit, AfterViewInit {
   allData: Co2Entity[] = [];
   yearList: number[] = [];
   years: any[] = [];
-  selectedYear: any = null;
+  selectedYear: any = 2020;
 
   // Configuration for year dropdown
-  yearDropdownConfig = {
-    displayKey: 'name',
-    search: true,
-    height: '300px',
-    placeholder: 'Select Year',
-    searchPlaceholder: 'Search Year',
-    limitTo: 0,
-    moreText: 'more',
-    noResultsFound: 'No results found!',
-    searchOnKey: 'name',
-    clearOnSelection: false,
-    inputDirection: 'ltr',
-    enableSelectAll: false,
-    multiple: false,
-    allowRemoveSelection: false
-  };
+  yearDropdownConfig;
 
-  constructor(private dataService: DataService) {}
+  constructor(private dataService: DataService,   private dropdownService: DropdownConfigService
+  ) {
+    this.yearDropdownConfig = this.dropdownService.getYearConfig();
+  }
 
   ngOnInit(): void {
     this.dataService.loadCSV$().subscribe(data => {

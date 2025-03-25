@@ -15,6 +15,7 @@ import {
 import { Co2Entity } from '../../core/models/co2-entity-model';
 import { DataService } from '../../core/services/data.service';
 import { combineLatest } from 'rxjs';
+import { DropdownConfigService } from '../../core/services/dropdown-config.service';
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
@@ -46,49 +47,18 @@ export class RegionalComparisonComponent implements OnInit, AfterViewInit {
   regions: any[] = [];
   selectedRegions: any[] = [];
   years: any[] = [];
-  selectedYear: any = null;
+  selectedYear: any = 2020;
 
   // Configuration for dropdowns
-  dropdownConfig = {
-    displayKey: 'name',
-    search: true,
-    height: '300px',
-    placeholder: 'Select Countries',
-    searchPlaceholder: 'Search Countries',
-    limitTo: 0,
-    moreText: 'more',
-    noResultsFound: 'No results found!',
-    searchOnKey: 'name',
-    clearOnSelection: false,
-    inputDirection: 'ltr',
-    enableSelectAll: false,
-    multiple: true
-  };
-
-  yearDropdownConfig = {
-    displayKey: 'name',
-    search: true,
-    height: '300px',
-    placeholder: 'Select Year',
-    searchPlaceholder: 'Search Year',
-    limitTo: 0,
-    moreText: 'more',
-    noResultsFound: 'No results found!',
-    searchOnKey: 'name',
-    clearOnSelection: false,
-    inputDirection: 'ltr',
-    enableSelectAll: false,
-    multiple: false,
-    allowRemoveSelection: false
-  };
-
-  regionDropdownConfig = {
-    ...this.dropdownConfig,
-    placeholder: 'Select Regions',
-    searchPlaceholder: 'Search Regions'
-  };
-
-  constructor(private dataService: DataService) {}
+  dropdownConfig;
+  yearDropdownConfig;
+  regionDropdownConfig;
+  constructor(private dataService: DataService,
+    private dropdownService: DropdownConfigService
+  ) { this.dropdownConfig = this.dropdownService.getMultiSelectConfig('Select Countries', 'Search Countries');
+    this.yearDropdownConfig = this.dropdownService.getYearConfig();
+    this.regionDropdownConfig = this.dropdownService.getMultiSelectConfig('Select Regions', 'Search Regions');
+  }
 
   ngOnInit(): void {
     combineLatest([
